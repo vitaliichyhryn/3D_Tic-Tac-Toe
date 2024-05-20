@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlhpgplh6d2yy"]
+
+[ext_resource type="Script" path="res://Scripts/Viewport.cs" id="1_i2a5e"]
+
+[node name="Viewport" type="Node3D"]
+script = ExtResource("1_i2a5e")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+size = 10.0
