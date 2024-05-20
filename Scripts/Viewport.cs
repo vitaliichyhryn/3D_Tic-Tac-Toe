@@ -2,15 +2,21 @@ using Godot;
 using System;
 
 public partial class Viewport : Node3D
-{
-    public const float zoomSpeed = 0.75f;
-    public const float zoomDamp = 0.5f;
+{   
+    public const float rotationSpeed = 5f / 1000f;
+    public const float zoomSpeed = 0.05f;
+    public const float pitchMax = (float)Math.PI / 2f;
     public const float zoomMin = 5f;
     public const float zoomMax = 15f;
-    public const float sensitivity = 5f / 1000f;
-    public const float PI_2 = (float)Math.PI / 2f;
+    public const float damp = 0.9f;
 
-    public Camera3D Camera => GetNode<Camera3D>("Camera3D");
+    public float twistInput = 0;
+    public float pitchInput = 0;
+    public float zoomInput = 0;
+
+    public Node3D TwistPivot => GetNode<Node3D>("TwistPivot");
+    public Node3D PitchPivot => GetNode<Node3D>("TwistPivot/PitchPivot");
+    public Camera3D Camera => GetNode<Camera3D>("TwistPivot/PitchPivot/Camera3D");
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -20,6 +26,8 @@ public partial class Viewport : Node3D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
+        CameraRotation();
+        CameraZoom();
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -30,29 +38,17 @@ public partial class Viewport : Node3D
         {
             if (Input.IsMouseButtonPressed(MouseButton.Right))
             {
-                Rotate(motion);
+                CameraRotate(motion);
             }
         }
 
-        if (@event is InputEventMouseButton button)
+        if (Input.IsActionJustPressed("zoom_in"))
         {
-            if (button.Pressed)
-            {
-                if (button.ButtonIndex == MouseButton.WheelUp)
-                {
-                    ZoomIn(Camera);
-                }
-
-                if (button.ButtonIndex == MouseButton.WheelDown)
-                {
-                    ZoomOut(Camera);
-                }
-            }
+            CameraZoomIn();
         }
-
-        if (Input.IsKeyPressed(Key.P))
+        if (Input.IsActionJustPressed("zoom_out"))
         {
-            ChangeProjection(Camera);
+            CameraZoomOut();
         }
 
         if (Input.IsKeyPressed(Key.Q))
@@ -61,67 +57,48 @@ public partial class Viewport : Node3D
         }
     }
 
-    private void Rotate(InputEventMouseMotion motion)
+    private void CameraRotate(InputEventMouseMotion motion)
     {
-        Rotation = new Vector3(
-            Rotation.X,
-            Rotation.Y - motion.Relative.X * sensitivity,
-            Rotation.Z
-            );
-        Rotation = new Vector3(
-            Math.Clamp(Rotation.X - motion.Relative.Y * sensitivity, -PI_2, PI_2),
-            Rotation.Y,
-            Rotation.Z
-            );
+        twistInput = -motion.Relative.X * rotationSpeed;
+        pitchInput = -motion.Relative.Y * rotationSpeed;
     }
 
-    private void ZoomIn(Camera3D camera)
+    private void CameraRotation()
     {
-        if (camera.Projection == Camera3D.ProjectionType.Perspective)
-        {
-            camera.Position = new Vector3(
-                camera.Position.X,
-                camera.Position.Y,
-                Math.Clamp(camera.Position.Z - zoomSpeed, zoomMin, zoomMax)
-                );
-        }
-        else
-        {
-            camera.Size = Math.Clamp(camera.Size - zoomSpeed, zoomMin, zoomMax);
-        }
+        TwistPivot.Rotation = new Vector3(
+            TwistPivot.Rotation.X,
+            TwistPivot.Rotation.Y + twistInput,
+            TwistPivot.Rotation.Z
+        );
+        
+        PitchPivot.Rotation = new Vector3(
+            Math.Clamp(PitchPivot.Rotation.X + pitchInput, -pitchMax, pitchMax),
+            PitchPivot.Rotation.Y,
+            PitchPivot.Rotation.Z
+        );
+
+        twistInput *= damp;
+        pitchInput *= damp;
+    }
+    
+    private void CameraZoomIn()
+    {
+        zoomInput -= zoomSpeed;
     }
 
-    private void ZoomOut(Camera3D camera)
+    private void CameraZoomOut()
     {
-        if (camera.Projection == Camera3D.ProjectionType.Perspective)
-        {
-            camera.Position = new Vector3(
-                camera.Position.X,
-                camera.Position.Y,
-                Math.Clamp(camera.Position.Z + zoomSpeed, zoomMin, zoomMax)
-                );
-        }
-        else
-        {
-            camera.Size = Math.Clamp(camera.Size + zoomSpeed, zoomMin, zoomMax);
-        }
+        zoomInput += zoomSpeed;
     }
 
-    private void ChangeProjection(Camera3D camera)
+    private void CameraZoom()
     {
-        if (camera.Projection == Camera3D.ProjectionType.Perspective)
-        {
-            camera.Size = camera.Position.Z;
-            camera.Projection = Camera3D.ProjectionType.Orthogonal;
-        }
-        else
-        {
-            camera.Position = new Vector3(
-                camera.Position.X,
-                camera.Position.Y,
-                camera.Size
-                );
-            camera.Projection = Camera3D.ProjectionType.Perspective;
-        }
+        Camera.Position = new Vector3(
+            Camera.Position.X,
+            Camera.Position.Y,
+            Math.Clamp(Camera.Position.Z + zoomInput, zoomMin, zoomMax)
+        );
+
+        zoomInput *= damp;
     }
 }

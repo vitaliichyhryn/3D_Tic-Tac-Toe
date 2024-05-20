@@ -5,6 +5,10 @@
 [node name="Viewport" type="Node3D"]
 script = ExtResource("1_i2a5e")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="TwistPivot" type="Node3D" parent="."]
+
+[node name="PitchPivot" type="Node3D" parent="TwistPivot"]
+
+[node name="Camera3D" type="Camera3D" parent="TwistPivot/PitchPivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
 size = 10.0
