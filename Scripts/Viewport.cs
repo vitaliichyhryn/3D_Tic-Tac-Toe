@@ -3,12 +3,13 @@ using System;
 
 public partial class Viewport : Node3D
 {   
-    public const float rotationSpeed = 5f / 1000f;
+    public const float rotationSpeed = 0.75f / 1000f;
     public const float zoomSpeed = 0.05f;
     public const float pitchMax = (float)Math.PI / 2f;
     public const float zoomMin = 5f;
     public const float zoomMax = 15f;
-    public const float damp = 0.9f;
+    public const float rotationDamp = 0.8f;
+    public const float zoomDamp = 0.85f;
 
     public float twistInput = 0;
     public float pitchInput = 0;
@@ -42,11 +43,11 @@ public partial class Viewport : Node3D
             }
         }
 
-        if (Input.IsActionJustPressed("zoom_in"))
+        if (Input.IsActionJustPressed("ZoomIn"))
         {
             CameraZoomIn();
         }
-        if (Input.IsActionJustPressed("zoom_out"))
+        if (Input.IsActionJustPressed("ZoomOut"))
         {
             CameraZoomOut();
         }
@@ -59,8 +60,8 @@ public partial class Viewport : Node3D
 
     private void CameraRotate(InputEventMouseMotion motion)
     {
-        twistInput = -motion.Relative.X * rotationSpeed;
-        pitchInput = -motion.Relative.Y * rotationSpeed;
+        twistInput -= motion.Relative.X * rotationSpeed;
+        pitchInput -= motion.Relative.Y * rotationSpeed;
     }
 
     private void CameraRotation()
@@ -77,8 +78,8 @@ public partial class Viewport : Node3D
             PitchPivot.Rotation.Z
         );
 
-        twistInput *= damp;
-        pitchInput *= damp;
+        twistInput *= rotationDamp;
+        pitchInput *= rotationDamp;
     }
     
     private void CameraZoomIn()
@@ -99,6 +100,6 @@ public partial class Viewport : Node3D
             Math.Clamp(Camera.Position.Z + zoomInput, zoomMin, zoomMax)
         );
 
-        zoomInput *= damp;
+        zoomInput *= zoomDamp;
     }
 }

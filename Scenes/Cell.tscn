@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://bebl0nmtnx3d7"]
+
+[ext_resource type="Script" path="res://Scripts/Cell.cs" id="1_sfd2w"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1gbrw"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4q0d0"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_bbmq0"]
+data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
+
+[node name="Cell" type="Node3D"]
+script = ExtResource("1_sfd2w")
+
+[node name="Cube" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_1gbrw")
+surface_material_override/0 = SubResource("StandardMaterial3D_4q0d0")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Cube"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cube/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_bbmq0")
+
+[connection signal="input_event" from="Cube/StaticBody3D" to="." method="OnStaticBody3DInputEvent"]
