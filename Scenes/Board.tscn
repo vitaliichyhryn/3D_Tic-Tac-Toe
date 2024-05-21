@@ -1,7 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://bmkxt1euvo8p4"]
+[gd_scene load_steps=6 format=3 uid="uid://cqj05t6dkrlfn"]
 
-[ext_resource type="PackedScene" uid="uid://dlhpgplh6d2yy" path="res://Scenes/Viewport.tscn" id="1_pikau"]
-[ext_resource type="PackedScene" uid="uid://bebl0nmtnx3d7" path="res://Scenes/Cell.tscn" id="2_eivbw"]
+[ext_resource type="Script" path="res://Scripts/Board.cs" id="1_m1bft"]
+[ext_resource type="PackedScene" uid="uid://dlhpgplh6d2yy" path="res://Scenes/Player.tscn" id="1_pikau"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_s0lgm"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -16,9 +16,10 @@ sky = SubResource("Sky_cc1rl")
 tonemap_mode = 2
 glow_enabled = true
 
-[node name="Scene" type="Node3D"]
+[node name="Board" type="Node3D"]
+script = ExtResource("1_m1bft")
 
-[node name="Viewport" parent="." instance=ExtResource("1_pikau")]
+[node name="Player" parent="." instance=ExtResource("1_pikau")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_hlm0e")
@@ -26,8 +27,3 @@ environment = SubResource("Environment_hlm0e")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, -30, 30, 30)
 shadow_enabled = true
-
-[node name="Cell" parent="." instance=ExtResource("2_eivbw")]
-
-[node name="Cell2" parent="." instance=ExtResource("2_eivbw")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)

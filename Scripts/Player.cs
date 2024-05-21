@@ -1,14 +1,14 @@
 using Godot;
 using System;
 
-public partial class Viewport : Node3D
+public partial class Player : Node3D
 {   
     public const float rotationSpeed = 0.75f / 1000f;
     public const float zoomSpeed = 0.05f;
     public const float pitchMax = (float)Math.PI / 2f;
     public const float zoomMin = 5f;
     public const float zoomMax = 15f;
-    public const float rotationDamp = 0.8f;
+    public const float rotationDamp = 0.85f;
     public const float zoomDamp = 0.85f;
 
     public float twistInput = 0;
@@ -17,7 +17,7 @@ public partial class Viewport : Node3D
 
     public Node3D TwistPivot => GetNode<Node3D>("TwistPivot");
     public Node3D PitchPivot => GetNode<Node3D>("TwistPivot/PitchPivot");
-    public Camera3D Camera => GetNode<Camera3D>("TwistPivot/PitchPivot/Camera3D");
+    public Camera3D Camera => GetNode<Camera3D>("TwistPivot/PitchPivot/Camera");
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
