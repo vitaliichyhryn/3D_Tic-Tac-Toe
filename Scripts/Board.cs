@@ -15,7 +15,7 @@ public partial class Board : Node3D
 
 	public Player CurrentPlayer { get; set; } = Player.FirstPlayer;
 
-	public List<Node> cells = new List<Node>();
+	public List<Cell> cells = new List<Cell>();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -50,5 +50,15 @@ public partial class Board : Node3D
 	{
 		if (CurrentPlayer == Player.FirstPlayer) CurrentPlayer = Player.SecondPlayer;
 		else CurrentPlayer = Player.FirstPlayer;
+	}
+
+	public void CheckRows()
+	{
+
+	}
+
+	public void CheckDiagonals()
+	{
+
 	}
 }

@@ -30,11 +30,18 @@ public partial class Cell : Node3D
 		Position = new Vector3(2f * i, 2f * j, 2f *k);
 	}
 
+
+
 	public void OnStaticBody3DInputEvent(Camera3D camera, InputEvent @event, Vector3 clickPosition, Vector3 clickNormal, int shapeID)
 	{
 		if (Input.IsActionJustPressed("UILeftClick"))
 		{
 			Fill();
+		}
+
+		if (Input.IsActionJustPressed("UIRightClick"))
+		{
+			GD.Print(Board.cells.IndexOf(this));
 		}
 	}
 
