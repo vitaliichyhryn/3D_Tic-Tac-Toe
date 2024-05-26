@@ -51,11 +51,6 @@ public partial class Player : Node3D
         {
             CameraZoomOut();
         }
-
-        if (Input.IsKeyPressed(Key.Q))
-        {
-            GetTree().Quit();
-        }
     }
 
     private void CameraRotate(InputEventMouseMotion motion)
