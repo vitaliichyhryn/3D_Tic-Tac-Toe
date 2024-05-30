@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://dyd8g84nv425y"]
+[gd_scene load_steps=4 format=3 uid="uid://dyd8g84nv425y"]
 
 [ext_resource type="Script" path="res://Scripts/ModePicker.cs" id="1_vh31x"]
+[ext_resource type="FontFile" uid="uid://cxjldqsh0ve8" path="res://Resources/lakonet-lakonet-regular-400.ttf" id="2_51y2v"]
+[ext_resource type="Theme" uid="uid://d22h06qedjecx" path="res://Resources/Button.tres" id="3_8h0kx"]
 
 [node name="ModePicker" type="Control"]
 layout_mode = 3
@@ -11,7 +13,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_vh31x")
 
-[node name="Container" type="VBoxContainer" parent="."]
+[node name="ModePickerContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -25,20 +27,27 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="Container"]
+[node name="Label" type="Label" parent="ModePickerContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_51y2v")
+theme_override_font_sizes/font_size = 96
 text = "CHOOSE MODE"
 
-[node name="Singleplayer" type="Button" parent="Container"]
+[node name="ButtonsContainer" type="VBoxContainer" parent="ModePickerContainer"]
+custom_minimum_size = Vector2(512, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
+size_flags_horizontal = 4
+
+[node name="Singleplayer" type="Button" parent="ModePickerContainer/ButtonsContainer"]
+layout_mode = 2
+theme = ExtResource("3_8h0kx")
 text = "SINGLEPLAYER"
 
-[node name="Multiplayer" type="Button" parent="Container"]
+[node name="Multiplayer" type="Button" parent="ModePickerContainer/ButtonsContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
+theme = ExtResource("3_8h0kx")
 text = "MULTIPLAYER"
 
-[connection signal="pressed" from="Container/Singleplayer" to="." method="OnSingleplayerPressed"]
-[connection signal="pressed" from="Container/Multiplayer" to="." method="OnMultiplayerPressed"]
+[connection signal="pressed" from="ModePickerContainer/ButtonsContainer/Singleplayer" to="." method="OnSingleplayerPressed"]
+[connection signal="pressed" from="ModePickerContainer/ButtonsContainer/Multiplayer" to="." method="OnMultiplayerPressed"]

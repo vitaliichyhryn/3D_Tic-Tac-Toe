@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlhpgplh6d2yy"]
+
+[ext_resource type="Script" path="res://Scripts/Viewport.cs" id="1_jo00w"]
+
+[node name="Viewport" type="Node3D"]
+script = ExtResource("1_jo00w")
+
+[node name="TwistPivot" type="Node3D" parent="."]
+
+[node name="PitchPivot" type="Node3D" parent="TwistPivot"]
+
+[node name="Camera" type="Camera3D" parent="TwistPivot/PitchPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+size = 10.0
+
+[node name="SpotLight" type="SpotLight3D" parent="TwistPivot/PitchPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+light_energy = 5.0
+spot_range = 20.0
+spot_angle = 75.0

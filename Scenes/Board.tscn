@@ -1,18 +1,16 @@
 [gd_scene load_steps=6 format=3 uid="uid://cqj05t6dkrlfn"]
 
 [ext_resource type="Script" path="res://Scripts/Board.cs" id="1_m1bft"]
-[ext_resource type="PackedScene" uid="uid://dlhpgplh6d2yy" path="res://Scenes/Player.tscn" id="1_pikau"]
+[ext_resource type="PackedScene" uid="uid://dlhpgplh6d2yy" path="res://Scenes/Viewport.tscn" id="1_pikau"]
+[ext_resource type="FontFile" uid="uid://cxjldqsh0ve8" path="res://Resources/lakonet-lakonet-regular-400.ttf" id="3_cbltb"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_s0lgm"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-
-[sub_resource type="Sky" id="Sky_cc1rl"]
-sky_material = SubResource("ProceduralSkyMaterial_s0lgm")
+[sub_resource type="Sky" id="Sky_b32vu"]
 
 [sub_resource type="Environment" id="Environment_hlm0e"]
 background_color = Color(0, 0.392157, 0, 1)
-sky = SubResource("Sky_cc1rl")
+sky = SubResource("Sky_b32vu")
+ambient_light_source = 1
+reflected_light_source = 1
 
 [node name="Board" type="Node3D"]
 script = ExtResource("1_m1bft")
@@ -21,3 +19,20 @@ script = ExtResource("1_m1bft")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_hlm0e")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -382.0
+offset_right = 382.0
+offset_bottom = 96.0
+grow_horizontal = 2
+theme_override_constants/margin_top = 128
+
+[node name="CurrentTurn" type="Label" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("3_cbltb")
+theme_override_font_sizes/font_size = 64
+text = "CURRENT PLAYER: "

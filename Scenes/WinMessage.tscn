@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://2phy0mondcg"]
+[gd_scene load_steps=4 format=3 uid="uid://2phy0mondcg"]
 
 [ext_resource type="Script" path="res://Scripts/WinMessage.cs" id="1_f10gd"]
+[ext_resource type="FontFile" uid="uid://cxjldqsh0ve8" path="res://Resources/lakonet-lakonet-regular-400.ttf" id="2_4celf"]
+[ext_resource type="Theme" uid="uid://d22h06qedjecx" path="res://Resources/Button.tres" id="3_hjydh"]
 
 [node name="WinMessage" type="Control"]
 layout_mode = 3
@@ -13,46 +15,45 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 script = ExtResource("1_f10gd")
 
-[node name="Container" type="VBoxContainer" parent="."]
+[node name="WinMessageContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -137.5
-offset_top = -194.0
-offset_right = 137.5
-offset_bottom = 194.0
+offset_left = -256.0
+offset_top = -230.0
+offset_right = 256.0
+offset_bottom = 230.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="Container"]
+[node name="Winner" type="Label" parent="WinMessageContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
+theme_override_fonts/font = ExtResource("2_4celf")
+theme_override_font_sizes/font_size = 96
 
-[node name="Menu" type="Button" parent="Container"]
+[node name="ButtonContainer" type="VBoxContainer" parent="WinMessageContainer"]
+custom_minimum_size = Vector2(512, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/outline_size = 0
-theme_override_font_sizes/font_size = 64
+
+[node name="Menu" type="Button" parent="WinMessageContainer/ButtonContainer"]
+layout_mode = 2
+theme = ExtResource("3_hjydh")
 text = "MENU"
 
-[node name="Restart" type="Button" parent="Container"]
+[node name="Restart" type="Button" parent="WinMessageContainer/ButtonContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/outline_size = 0
-theme_override_font_sizes/font_size = 64
+theme = ExtResource("3_hjydh")
 text = "RESTART"
 
-[node name="Quit" type="Button" parent="Container"]
+[node name="Quit" type="Button" parent="WinMessageContainer/ButtonContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-theme_override_constants/outline_size = 0
-theme_override_font_sizes/font_size = 64
+theme = ExtResource("3_hjydh")
 text = "QUIT"
 
-[connection signal="pressed" from="Container/Menu" to="." method="OnMenuPressed"]
-[connection signal="pressed" from="Container/Restart" to="." method="OnRestartPressed"]
-[connection signal="pressed" from="Container/Quit" to="." method="OnQuitPressed"]
+[connection signal="pressed" from="WinMessageContainer/ButtonContainer/Menu" to="." method="OnMenuPressed"]
+[connection signal="pressed" from="WinMessageContainer/ButtonContainer/Restart" to="." method="OnRestartPressed"]
+[connection signal="pressed" from="WinMessageContainer/ButtonContainer/Quit" to="." method="OnQuitPressed"]

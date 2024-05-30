@@ -1,11 +1,13 @@
 using Godot;
-using System;
 
 public partial class WinMessage : Control
 {
+	Label Winner => GetNode<Label>("WinMessageContainer/Winner");
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		GD.Print();
+		Winner.Text = Board.GetPlayerName(Game.Winner) + " HAS WON!";
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

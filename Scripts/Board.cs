@@ -1,24 +1,29 @@
 using Godot;
-using System;
 using System.Linq;
 
 public partial class Board : Node3D
 {
 	public enum Player
 	{
-		NoPlayer,
-		RedPlayer,
-		BluePlayer
+		None,
+		Red = -1,
+		Blue = 1
 	}
 
-	public Player CurrentPlayer { get; set; } = Player.RedPlayer;
-
-	public Cell[,,] Cells = new Cell[3, 3, 3];
+	public const int Size = 3;
+	public const int SearchDepth = 3;
+	public const int ScoreLimit = 5;
+	public Cell[,,] Cells = new Cell[Size, Size, Size];
+	public Player CurrentPlayer;
+	Label CurrentTurn => GetNode<Label>("MarginContainer/CurrentTurn");
+	PackedScene WinMessage = GD.Load<PackedScene>("res://Scenes/WinMessage.tscn");
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		Create();
+		CurrentPlayer = Player.Red;
+		CurrentTurn.Text = "CURRENT TURN: " + GetPlayerName(CurrentPlayer);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -28,11 +33,11 @@ public partial class Board : Node3D
 
 	public void Create()
 	{
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < Size; i++)
 		{
-			for (int j = 0; j < 3; j++)
+			for (int j = 0; j < Size; j++)
 			{
-				for (int k = 0; k < 3; k++)
+				for (int k = 0; k < Size; k++)
 				{
 					var cell = GD.Load<PackedScene>("res://Scenes/Cell.tscn").Instantiate() as Cell;
 					cell.Create(i, j, k);
@@ -44,160 +49,114 @@ public partial class Board : Node3D
 		}
 	}
 
-	public bool IsWin(Cell cell)
+	public void Delete()
+	{
+		CurrentTurn.QueueFree();
+		foreach (var cell in Cells)
+		{
+			cell.QueueFree();
+		}
+	}
+
+	public static string GetPlayerName(Player player)
+	{
+		if (player == Player.None) return "NONE";
+		return (player == Player.Red ? "RED" : "BLUE") + " PLAYER";
+	}
+
+	public Player GetWinner(Cell cell)
 	{
 		// Check X row
-		if (Enumerable.Range(0, 3).All(i => Cells[i, cell.j, cell.k].State == cell.State)) return true;
+		if (Enumerable.Range(0, Size).All(i => Cells[i, cell.j, cell.k].Player == cell.Player)) return cell.Player;
 
 		// Check Y column
-		if (Enumerable.Range(0, 3).All(i => Cells[cell.i, i, cell.k].State == cell.State)) return true;
+		if (Enumerable.Range(0, Size).All(i => Cells[cell.i, i, cell.k].Player == cell.Player)) return cell.Player;
 
 		// Check Z tube
-		if (Enumerable.Range(0, 3).All(i => Cells[cell.i, cell.j, i].State == cell.State)) return true;
+		if (Enumerable.Range(0, Size).All(i => Cells[cell.i, cell.j, i].Player == cell.Player)) return cell.Player;
 
 		// Check XY diagonals
-		if (Enumerable.Range(0, 3).All(i => Cells[i, i, cell.k].State == cell.State)) return true;
-		if (Enumerable.Range(0, 3).All(i => Cells[i, 2 - i, cell.k].State == cell.State)) return true;
+		if (Enumerable.Range(0, Size).All(i => Cells[i, i, cell.k].Player == cell.Player)) return cell.Player;
+		if (Enumerable.Range(0, Size).All(i => Cells[i, Size - 1 - i, cell.k].Player == cell.Player)) return cell.Player;
 
 		// Check YZ diagonals
-		if (Enumerable.Range(0, 3).All(i => Cells[cell.i, i, i].State == cell.State)) return true;
-		if (Enumerable.Range(0, 3).All(i => Cells[cell.i, 2 - i, i].State == cell.State)) return true;
+		if (Enumerable.Range(0, Size).All(i => Cells[cell.i, i, i].Player == cell.Player)) return cell.Player;
+		if (Enumerable.Range(0, Size).All(i => Cells[cell.i, Size - 1 - i, i].Player == cell.Player)) return cell.Player;
 
 		// Check XZ diagonals
-		if (Enumerable.Range(0, 3).All(i => Cells[i, cell.j, i].State == cell.State)) return true;
-		if (Enumerable.Range(0, 3).All(i => Cells[2 - i, cell.j, i].State == cell.State)) return true;
+		if (Enumerable.Range(0, Size).All(i => Cells[i, cell.j, i].Player == cell.Player)) return cell.Player;
+		if (Enumerable.Range(0, Size).All(i => Cells[Size - 1 - i, cell.j, i].Player == cell.Player)) return cell.Player;
 		
-
 		// Check XYZ diagonals
-		if (Enumerable.Range(0, 3).All(i => Cells[i, i, i].State == cell.State)) return true;
-		if (Enumerable.Range(0, 3).All(i => Cells[2 - i, i, i].State == cell.State)) return true;
-		if (Enumerable.Range(0, 3).All(i => Cells[i, 2 - i, i].State == cell.State)) return true;
-		if (Enumerable.Range(0, 3).All(i => Cells[i, i, 2 - i].State == cell.State)) return true;
+		if (Enumerable.Range(0, Size).All(i => Cells[i, i, i].Player == cell.Player)) return cell.Player;
+		if (Enumerable.Range(0, Size).All(i => Cells[Size - 1 - i, i, i].Player == cell.Player)) return cell.Player;
+		if (Enumerable.Range(0, Size).All(i => Cells[i, Size - 1 - i, i].Player == cell.Player)) return cell.Player;
+		if (Enumerable.Range(0, Size).All(i => Cells[i, i, Size - 1 - i].Player == cell.Player)) return cell.Player;
 
-		return false;
+		return Player.None;
 	}
 
 	public void NextTurn(Cell cell)
 	{
-		GD.Print("NEXT TURN");
 		// Check win condition
-		if (IsWin(cell))
+		if (GetWinner(cell) != Player.None)
 		{
-			var winMessage = GD.Load<PackedScene>("res://Scenes/WinMessage.tscn").Instantiate() as Control;
-			var playerWonLabel = winMessage.GetNode<Label>("Container/Label");
-			playerWonLabel.Text = cell.State == Player.RedPlayer ? "RED PLAYER HAS WON" : "BLUE PLAYER HAS WON";
-			AddChild(winMessage);
+			Delete();
+			Game.Winner = CurrentPlayer;
+			AddChild(WinMessage.Instantiate());
 			return;
 		}
 		
 		// Change current player
-		if (CurrentPlayer == Player.RedPlayer) CurrentPlayer = Player.BluePlayer;
-		else CurrentPlayer = Player.RedPlayer;
+		if (CurrentPlayer == Player.Red) CurrentPlayer = Player.Blue;
+		else CurrentPlayer = Player.Red;
+		CurrentTurn.Text = "CURRENT TURN: " + GetPlayerName(CurrentPlayer);
 
 		// Make best move if singleplayer
-		if (Game.CurrentGameMode == Game.GameMode.Singleplayer && CurrentPlayer == Player.BluePlayer)
+		if (Game.CurrentGameMode == Game.GameMode.Singleplayer && CurrentPlayer == Player.Blue)
 		{
-			GD.Print("MINIMAX TURN");
 			MakeBestMove();
 		}
 	}
 
-	public int AlphaBeta(Cell node, int depth, int alpha, int beta, bool isMaximizer)
-	{
-		if (IsWin(node) && node.State == Player.BluePlayer)
+	public int NegaMax(Cell origin, int alpha, int beta, int depth)
+	{		
+		if (GetWinner(origin) != Player.None) return -(1 + depth);
+		if (depth == 0) return 0;
+		foreach (var cell in Cells)
 		{
-			return 1;
-		}
-		if (IsWin(node) && node.State == Player.RedPlayer)
-		{
-			return -1;
-		}
-		if (depth == 4)
-		{
-			return 0;
-		}
-
-		if (isMaximizer)
-		{
-			int value = int.MinValue;
-			for (int i = 0; i < 3; i++)
+			if (cell.Player == Player.None)
 			{
-				for (int j = 0; j < 3; j++)
-				{
-					for (int k = 0; k < 3; k++)
-					{
-						var child = Cells[i, j, k];
-						if (child.State == Player.NoPlayer)
-						{
-							child.State = Player.BluePlayer;
-							value = Math.Max(value, AlphaBeta(child, depth + 1, alpha, beta, false));
-							child.State = Player.NoPlayer;
-							if (value >= beta) return value;
-							alpha = Math.Max(alpha, value);
-						}
-					}
-				}
+				cell.Player = origin.Player == Player.Red ? Player.Blue : Player.Red;
+				int score = -NegaMax(cell, -beta, -alpha, depth - 1);
+				cell.Player = Player.None;
+				if (score >= beta)
+					return beta;
+				if (score > alpha)
+					alpha = score;
 			}
-			return value;
 		}
-		else
-		{
-			int value = int.MaxValue;
-			for (int i = 0; i < 3; i++)
-			{
-				for (int j = 0; j < 3; j++)
-				{
-					for (int k = 0; k < 3; k++)
-					{
-						var child = Cells[i, j, k];
-						if (child.State == Player.NoPlayer)
-						{
-							child.State = Player.RedPlayer;
-							value = Math.Min(value, AlphaBeta(child, depth + 1, alpha, beta, true));
-							child.State = Player.NoPlayer;
-							if (value <= alpha) return value;
-							beta = Math.Min(beta, value);
-						}
-					}
-				}
-			}
-			return value;
-		}
+		return alpha;
 	}
-
-	public struct Move
-	{
-		public int i, j, k;
-	}		
 
 	public void MakeBestMove()
 	{
-		int bestValue = int.MinValue;
-		Move move = new Move();
-		for (int i = 0; i < 3; i++)
+		var bestScore = -ScoreLimit;
+		Cell bestCell = null;
+		foreach (var cell in Cells)
 		{
-			for (int j = 0; j < 3; j++)
+			if (cell.Player == Player.None)
 			{
-				for (int k = 0; k < 3; k++)
+				cell.Player = Player.Blue;
+				int score = -NegaMax(cell, -ScoreLimit, ScoreLimit,  SearchDepth);
+				cell.Player = Player.None;
+				if (score > bestScore)
 				{
-					var origin = Cells[i, j, k];
-					if (origin.State == Player.NoPlayer)
-					{
-						origin.State = Player.BluePlayer;
-						int value = AlphaBeta(origin, 0, int.MinValue, int.MaxValue, false);
-						origin.State = Player.NoPlayer;
-						if (value > bestValue)
-						{
-							bestValue = value;
-							move.i = i;
-							move.j = j;
-							move.k = k;
-						}
-					}
+					bestScore = score;
+					bestCell = cell;
 				}
 			}
 		}
-		Cells[move.i, move.j, move.k].Fill();
-		GD.Print("MADE BEST TURN");
+		bestCell.Fill();
 	}
 }

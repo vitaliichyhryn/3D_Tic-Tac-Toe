@@ -7,4 +7,6 @@ public static class Game
 	}
 
 	public static GameMode CurrentGameMode { get; set; }
+
+	public static Board.Player Winner;
 }

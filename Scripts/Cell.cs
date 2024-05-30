@@ -1,15 +1,11 @@
 using Godot;
-using System;
 
 public partial class Cell : Node3D
 {
 	public Board Board => GetNode("..") as Board;
-	public Board.Player State { get; set; } = Board.Player.NoPlayer;
-	public MeshInstance3D Mesh => GetNode<MeshInstance3D>("Mesh");
+	public Board.Player Player = Board.Player.None;
+	public MeshInstance3D Mesh => GetNode<MeshInstance3D>("StaticBody/Mesh");
 	public int i, j, k;
-
-	public StandardMaterial3D redPlayerMaterial = GD.Load<StandardMaterial3D>("res://Materials/RedPlayer.tres");
-	public StandardMaterial3D bluePlayerMaterial = GD.Load<StandardMaterial3D>("res://Materials/BluePlayer.tres");
 
 	[Signal]
 	public delegate void FilledEventHandler(Cell cell);
@@ -32,29 +28,40 @@ public partial class Cell : Node3D
 		this.k = k;
 	}
 
-	public void OnStaticBody3DInputEvent(Camera3D camera, InputEvent @event, Vector3 clickPosition, Vector3 clickNormal, int shapeID)
+	public void OnStaticBodyMouseEntered()
 	{
+		if (Player == Board.Player.None)
+		{
+			Mesh.SetInstanceShaderParameter("alpha", 0.5f);
+			if (Board.CurrentPlayer == Board.Player.Red) Mesh.SetInstanceShaderParameter("color", new Color("f44c80"));
+			if (Board.CurrentPlayer == Board.Player.Blue) Mesh.SetInstanceShaderParameter("color", new Color("7385fa"));
+		}
+	}
+
+	public void OnStaticBodyMouseExited()
+	{
+		if (Player == Board.Player.None)
+		{
+			Mesh.SetInstanceShaderParameter("alpha", 0.1f);
+			Mesh.SetInstanceShaderParameter("color", new Color("ffffff"));
+		}
+	}
+
+	public void OnStaticBodyInputEvent(Camera3D camera, InputEvent @event, Vector3 clickPosition, Vector3 clickNormal, int shapeID)
+	{
+		
 		if (Input.IsActionJustPressed("UILeftClick"))
 		{
-			Fill();
+			if (Player == Board.Player.None) Fill();
 		}
 	}
 
 	public void Fill()
 	{
-		if (State != Board.Player.NoPlayer) return;
-		
-		State = Board.CurrentPlayer;
-		
-		if (Board.CurrentPlayer == Board.Player.RedPlayer)
-		{
-			Mesh.MaterialOverride = redPlayerMaterial;
-		}
-		else
-		{
-			Mesh.MaterialOverride = bluePlayerMaterial;
-		}
-		
+		Player = Board.CurrentPlayer;
+		Mesh.SetInstanceShaderParameter("alpha", 1f);
+		if (Player == Board.Player.Red) Mesh.SetInstanceShaderParameter("color", new Color("f44c80"));
+		if (Player == Board.Player.Blue) Mesh.SetInstanceShaderParameter("color", new Color("7385fa"));
 		EmitSignal(SignalName.Filled, this);
 	}
 }
