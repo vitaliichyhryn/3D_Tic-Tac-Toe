@@ -10,7 +10,7 @@ public partial class ModePicker : Control
 		GetTree().ChangeSceneToPacked(Board);
 	}
 
-	public void OnMultiplayerPressed()
+	public void OnMultiPlayerPressed()
 	{
 		Game.CurrentGameMode = Game.GameMode.MultiPlayer;
 		GetTree().ChangeSceneToPacked(Board);
