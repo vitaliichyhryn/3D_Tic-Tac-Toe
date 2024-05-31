@@ -2,11 +2,10 @@ public static class Game
 {
 	public enum GameMode
 	{
-		Singleplayer,
-		Multiplayer
+		SinglePlayer,
+		MultiPlayer
 	}
 
 	public static GameMode CurrentGameMode { get; set; }
-
-	public static Board.Player Winner;
+	public static Board.Player Winner { get; set; }
 }

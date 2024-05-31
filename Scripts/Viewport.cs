@@ -1,29 +1,21 @@
-using Godot;
 using System;
+using Godot;
 
 public partial class Viewport : Node3D
-{   
-    public const float ZoomSpeed = 0.05f;
-    public const float ZoomMin = 5f;
-    public const float ZoomMax = 15f;
-    public const float ZoomDamp = 0.85f;
-
-    public const float RotationSpeed = 0.75f / 1000f;
-    public const float RotationDamp = 0.85f;
-    public const float PitchMax = (float)Math.PI / 2f;
-
-    public float TwistInput = 0;
-    public float PitchInput = 0;
-    public float ZoomInput = 0;
-
-    public Node3D TwistPivot => GetNode<Node3D>("TwistPivot");
-    public Node3D PitchPivot => GetNode<Node3D>("TwistPivot/PitchPivot");
-    public Camera3D Camera => GetNode<Camera3D>("TwistPivot/PitchPivot/Camera");
-
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
-    {
-    }
+{
+    private const float ZoomSpeed = 0.05f;
+    private const float ZoomMin = 5f;
+    private const float ZoomMax = 15f;
+    private const float ZoomDamp = 0.85f;
+    private const float RotationSpeed = 0.75f / 1000f;
+    private const float RotationDamp = 0.85f;
+    private const float PitchMax = (float)Math.PI / 2f;
+    private float _twistInput;
+    private float _pitchInput;
+    private float _zoomInput;
+    private Node3D TwistPivot => GetNode<Node3D>("TwistPivot");
+    private Node3D PitchPivot => GetNode<Node3D>("TwistPivot/PitchPivot");
+    private Camera3D Camera => GetNode<Camera3D>("TwistPivot/PitchPivot/Camera");
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
@@ -37,55 +29,45 @@ public partial class Viewport : Node3D
         base._UnhandledInput(@event);
 
         if (@event is InputEventMouseMotion motion)
-        {
             if (Input.IsMouseButtonPressed(MouseButton.Right))
-            {
                 CameraRotate(motion);
-            }
-        }
 
-        if (Input.IsActionJustPressed("ZoomIn"))
-        {
-            CameraZoomIn();
-        }
-        if (Input.IsActionJustPressed("ZoomOut"))
-        {
-            CameraZoomOut();
-        }
+        if (Input.IsActionJustPressed("ZoomIn")) CameraZoomIn();
+        if (Input.IsActionJustPressed("ZoomOut")) CameraZoomOut();
     }
 
     private void CameraRotate(InputEventMouseMotion motion)
     {
-        TwistInput -= motion.Relative.X * RotationSpeed;
-        PitchInput -= motion.Relative.Y * RotationSpeed;
+        _twistInput -= motion.Relative.X * RotationSpeed;
+        _pitchInput -= motion.Relative.Y * RotationSpeed;
     }
 
     private void CameraRotation()
     {
         TwistPivot.Rotation = new Vector3(
             TwistPivot.Rotation.X,
-            TwistPivot.Rotation.Y + TwistInput,
+            TwistPivot.Rotation.Y + _twistInput,
             TwistPivot.Rotation.Z
         );
-        
+
         PitchPivot.Rotation = new Vector3(
-            Math.Clamp(PitchPivot.Rotation.X + PitchInput, -PitchMax, PitchMax),
+            Math.Clamp(PitchPivot.Rotation.X + _pitchInput, -PitchMax, PitchMax),
             PitchPivot.Rotation.Y,
             PitchPivot.Rotation.Z
         );
 
-        TwistInput *= RotationDamp;
-        PitchInput *= RotationDamp;
+        _twistInput *= RotationDamp;
+        _pitchInput *= RotationDamp;
     }
-    
+
     private void CameraZoomIn()
     {
-        ZoomInput -= ZoomSpeed;
+        _zoomInput -= ZoomSpeed;
     }
 
     private void CameraZoomOut()
     {
-        ZoomInput += ZoomSpeed;
+        _zoomInput += ZoomSpeed;
     }
 
     private void CameraZoom()
@@ -93,9 +75,9 @@ public partial class Viewport : Node3D
         Camera.Position = new Vector3(
             Camera.Position.X,
             Camera.Position.Y,
-            Math.Clamp(Camera.Position.Z + ZoomInput, ZoomMin, ZoomMax)
+            Math.Clamp(Camera.Position.Z + _zoomInput, ZoomMin, ZoomMax)
         );
 
-        ZoomInput *= ZoomDamp;
+        _zoomInput *= ZoomDamp;
     }
 }

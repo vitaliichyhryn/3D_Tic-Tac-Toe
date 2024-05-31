@@ -2,30 +2,20 @@ using Godot;
 
 public partial class Cell : Node3D
 {
-	public Board Board => GetNode("..") as Board;
 	public Board.Player Player = Board.Player.None;
-	public MeshInstance3D Mesh => GetNode<MeshInstance3D>("StaticBody/Mesh");
-	public int i, j, k;
+	private Board Board => GetNode("..") as Board;
+	private MeshInstance3D Mesh => GetNode<MeshInstance3D>("StaticBody/Mesh");
+	public int X, Y, Z;
 
 	[Signal]
 	public delegate void FilledEventHandler(Cell cell);
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+	public void Create(int x, int y, int z)
 	{
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
-
-	public void Create(int i, int j, int k)
-	{
-		Position = new Vector3(2f * (i - 1), 2f * (j - 1), 2f * (k - 1));
-		this.i = i;
-		this.j = j;
-		this.k = k;
+		Position = new Vector3(2f * (x - 1), 2f * (y - 1), 2f * (z - 1));
+		X = x;
+		Y = y;
+		Z = z;
 	}
 
 	public void OnStaticBodyMouseEntered()

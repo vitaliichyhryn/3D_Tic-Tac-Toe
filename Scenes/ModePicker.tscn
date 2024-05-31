@@ -39,15 +39,15 @@ custom_minimum_size = Vector2(512, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="Singleplayer" type="Button" parent="ModePickerContainer/ButtonsContainer"]
+[node name="SinglePlayer" type="Button" parent="ModePickerContainer/ButtonsContainer"]
 layout_mode = 2
 theme = ExtResource("3_8h0kx")
 text = "SINGLEPLAYER"
 
-[node name="Multiplayer" type="Button" parent="ModePickerContainer/ButtonsContainer"]
+[node name="MultiPlayer" type="Button" parent="ModePickerContainer/ButtonsContainer"]
 layout_mode = 2
 theme = ExtResource("3_8h0kx")
 text = "MULTIPLAYER"
 
-[connection signal="pressed" from="ModePickerContainer/ButtonsContainer/Singleplayer" to="." method="OnSingleplayerPressed"]
-[connection signal="pressed" from="ModePickerContainer/ButtonsContainer/Multiplayer" to="." method="OnMultiplayerPressed"]
+[connection signal="pressed" from="ModePickerContainer/ButtonsContainer/SinglePlayer" to="." method="OnSinglePlayerPressed"]
+[connection signal="pressed" from="ModePickerContainer/ButtonsContainer/MultiPlayer" to="." method="OnMultiPlayerPressed"]
