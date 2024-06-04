@@ -14,8 +14,8 @@ public partial class Board : Node3D
     private const int SearchDepth = 3;
     private const int ScoreLimit = 10;
     private readonly Cell[,,] _cells = new Cell[Size, Size, Size];
-    public Player CurrentPlayer { get; private set; }
-    private Player ComputerPlayer { get; set; }
+    public Player CurrentPlayer { get; private set; } = Player.Red;
+    private Player ComputerPlayer { get; } = GD.Randi() % 2 == 0 ? Player.Red : Player.Blue;
     private Label CurrentTurn => GetNode<Label>("MarginContainer/CurrentTurn");
     private static PackedScene WinMessage => GD.Load<PackedScene>("res://Scenes/WinMessage.tscn");
 
@@ -23,18 +23,8 @@ public partial class Board : Node3D
     public override void _Ready()
     {
         Create();
-        
-        // Set computer player if single-player
-        if (Game.CurrentGameMode == Game.GameMode.SinglePlayer)
-            ComputerPlayer = GD.Randi() % 2 == 0 ? Player.Red : Player.Blue;
-        
-        CurrentPlayer = Player.Red;
-        
-        // Make best move if computer player is first player
-        if (CurrentPlayer == ComputerPlayer)
-            MakeBestMove();
-        
         CurrentTurn.Text = "CURRENT TURN: " + GetPlayerName(CurrentPlayer);
+        if (CurrentPlayer == ComputerPlayer) MakeBestMove();
     }
 
     private void Create()
@@ -97,7 +87,6 @@ public partial class Board : Node3D
 
     private void NextTurn(Cell cell)
     {
-        // Check whether current player has won
         if (IsWin(cell))
         {
             Delete();
@@ -105,12 +94,10 @@ public partial class Board : Node3D
             AddChild(WinMessage.Instantiate());
             return;
         }
-        
-        // Change current player
+
         CurrentPlayer = CurrentPlayer == Player.Red ? Player.Blue : Player.Red;
         CurrentTurn.Text = "CURRENT TURN: " + GetPlayerName(CurrentPlayer);
-        
-        // Make best move if single-player
+
         if (Game.CurrentGameMode == Game.GameMode.SinglePlayer && CurrentPlayer == ComputerPlayer) MakeBestMove();
     }
 
