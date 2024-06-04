@@ -6,8 +6,8 @@ public partial class Board : Node3D
     public enum Player
     {
         None,
-        Red = -1,
-        Blue = 1
+        Red,
+        Blue
     }
 
     private const int Size = 3;
@@ -15,6 +15,7 @@ public partial class Board : Node3D
     private const int ScoreLimit = 10;
     private readonly Cell[,,] _cells = new Cell[Size, Size, Size];
     public Player CurrentPlayer { get; private set; }
+    private Player ComputerPlayer { get; set; }
     private Label CurrentTurn => GetNode<Label>("MarginContainer/CurrentTurn");
     private static PackedScene WinMessage => GD.Load<PackedScene>("res://Scenes/WinMessage.tscn");
 
@@ -22,7 +23,17 @@ public partial class Board : Node3D
     public override void _Ready()
     {
         Create();
+        
+        // Set computer player if single-player
+        if (Game.CurrentGameMode == Game.GameMode.SinglePlayer)
+            ComputerPlayer = GD.Randi() % 2 == 0 ? Player.Red : Player.Blue;
+        
         CurrentPlayer = Player.Red;
+        
+        // Make best move if computer player is first player
+        if (CurrentPlayer == ComputerPlayer)
+            MakeBestMove();
+        
         CurrentTurn.Text = "CURRENT TURN: " + GetPlayerName(CurrentPlayer);
     }
 
@@ -100,7 +111,7 @@ public partial class Board : Node3D
         CurrentTurn.Text = "CURRENT TURN: " + GetPlayerName(CurrentPlayer);
         
         // Make best move if single-player
-        if (Game.CurrentGameMode == Game.GameMode.SinglePlayer && CurrentPlayer == Player.Blue) MakeBestMove();
+        if (Game.CurrentGameMode == Game.GameMode.SinglePlayer && CurrentPlayer == ComputerPlayer) MakeBestMove();
     }
 
     private int Negamax(Cell origin, int alpha, int beta, int depth)
@@ -129,7 +140,7 @@ public partial class Board : Node3D
         foreach (var cell in _cells)
             if (cell.Player == Player.None)
             {
-                cell.Player = Player.Blue;
+                cell.Player = ComputerPlayer;
                 var score = -Negamax(cell, -ScoreLimit, ScoreLimit, SearchDepth);
                 cell.Player = Player.None;
                 if (score > bestScore)
