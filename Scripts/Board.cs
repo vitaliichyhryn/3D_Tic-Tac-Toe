@@ -5,9 +5,9 @@ public partial class Board : Node3D
 {
     public enum Player
     {
-        None,
-        Red,
-        Blue
+        None = 0,
+        Red = -1,
+        Blue = 1
     }
 
     private const int Size = 3;
@@ -15,16 +15,17 @@ public partial class Board : Node3D
     private const int ScoreLimit = 10;
     private readonly Cell[,,] _cells = new Cell[Size, Size, Size];
     public Player CurrentPlayer { get; private set; } = Player.Red;
-    private Player ComputerPlayer { get; } = GD.Randi() % 2 == 0 ? Player.Red : Player.Blue;
+    private Player ComputerPlayer { get; set; } = GD.Randi() % 2 == 0 ? Player.Red : Player.Blue;
     private Label CurrentTurn => GetNode<Label>("MarginContainer/CurrentTurn");
     private static PackedScene WinMessage => GD.Load<PackedScene>("res://Scenes/WinMessage.tscn");
+    private bool _gameWon;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         Create();
         CurrentTurn.Text = "CURRENT TURN: " + GetPlayerName(CurrentPlayer);
-        if (CurrentPlayer == ComputerPlayer) MakeBestMove();
+        if (Game.CurrentGameMode == Game.GameMode.SinglePlayer && CurrentPlayer == ComputerPlayer) MakeBestMove();
     }
 
     private void Create()
@@ -43,7 +44,7 @@ public partial class Board : Node3D
 
     private void Delete()
     {
-        CurrentTurn.QueueFree();
+        CurrentTurn.Text = "";
         foreach (var cell in _cells) cell.QueueFree();
     }
 
@@ -89,6 +90,7 @@ public partial class Board : Node3D
     {
         if (IsWin(cell))
         {
+            _gameWon = true;
             Delete();
             Game.Winner = CurrentPlayer;
             AddChild(WinMessage.Instantiate());
@@ -138,5 +140,51 @@ public partial class Board : Node3D
             }
 
         bestCell.Fill();
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        base._UnhandledInput(@event);
+
+        if (Input.IsActionJustPressed("Save") && !_gameWon)
+        {
+            Save();
+            GD.Print("saved");
+        }
+
+        if (Input.IsActionJustPressed("Load") && !_gameWon)
+        {
+            Load();
+            GD.Print("loaded");
+        }
+    }
+
+    public void Save()
+    {
+        using var file = FileAccess.Open("res://save.dat", FileAccess.ModeFlags.Write);
+        for (var i = 0; i < Size; i++)
+        for (var j = 0; j < Size; j++)
+        for (var k = 0; k < Size; k++)
+            file.StoreVar((int)_cells[i, j, k].Player);
+        file.StoreVar((int)ComputerPlayer);
+        file.StoreVar((int)CurrentPlayer);
+    }
+
+    public void Load()
+    {
+        Delete();
+        Create();
+        using var file = FileAccess.Open("res://save.dat", FileAccess.ModeFlags.Read);
+        for (var i = 0; i < Size; i++)
+        for (var j = 0; j < Size; j++)
+        for (var k = 0; k < Size; k++)
+        {
+            var player = (Player)file.GetVar().AsInt32();
+            if (player != Player.None) _cells[i, j, k].Fill(player);
+        }
+
+        ComputerPlayer = (Player)file.GetVar().AsInt32();
+        CurrentPlayer = (Player)file.GetVar().AsInt32();
+        CurrentTurn.Text = "CURRENT TURN: " + GetPlayerName(CurrentPlayer);
     }
 }

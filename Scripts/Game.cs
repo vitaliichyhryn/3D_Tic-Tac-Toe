@@ -5,7 +5,7 @@ public static class Game
 		SinglePlayer,
 		MultiPlayer
 	}
-
+	
 	public static GameMode CurrentGameMode { get; set; }
 	public static Board.Player Winner { get; set; }
 }

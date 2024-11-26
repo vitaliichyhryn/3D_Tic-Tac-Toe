@@ -54,4 +54,12 @@ public partial class Cell : Node3D
 		if (Player == Board.Player.Blue) Mesh.SetInstanceShaderParameter("color", new Color("7385fa"));
 		EmitSignal(SignalName.Filled, this);
 	}
+    
+	public void Fill(Board.Player player)
+	{
+		Player = player;
+		Mesh.SetInstanceShaderParameter("alpha", 1f);
+		if (Player == Board.Player.Red) Mesh.SetInstanceShaderParameter("color", new Color("f44c80"));
+		if (Player == Board.Player.Blue) Mesh.SetInstanceShaderParameter("color", new Color("7385fa"));
+	}
 }
